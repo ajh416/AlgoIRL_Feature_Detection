@@ -44,19 +44,6 @@ Image::~Image()
 // Calls the stbi_load function with references to w, h, and channels as defined in the "Image.h" file
 bool Image::read(const char *filename)
 {
-	const char *ext = strrchr(filename, '.');
-	if (ext != nullptr)
-	{
-		if (strcmp(ext, ".png") == 0)
-		{
-			imageExt = ".png";
-		}
-		else if (strcmp(ext, ".jpg") == 0)
-		{
-			imageExt = ".jpg";
-		}
-	}
-
 	data = stbi_load(filename, &w, &h, &channels, 0);
 	return data != NULL;
 }
@@ -64,37 +51,16 @@ bool Image::read(const char *filename)
 // Calls the stbi_write function using the filename param based on what type of image the file is
 bool Image::write(const char *filename)
 {
-	ImageType type = getFileType(filename);
-	int success;
-	switch (type)
-	{
-	case PNG:
+	//const char* ext = strrchr(filename, '.');
+	int success = 0;
+	/*
+	if (strcmp(ext, ".png") == 0)
 		success = stbi_write_png(filename, w, h, channels, data, w * channels);
-		break;
-	case JPG:
+	else
 		success = stbi_write_jpg(filename, w, h, channels, data, 100);
-		break;
-	}
-	assert(success != 0);
+	*/
+	success = stbi_write_png(filename, w, h, channels, data, w * channels);
 	return success != 0;
-}
-
-// Used to check what type of stbi_write function to use
-ImageType Image::getFileType(const char *filename)
-{
-	const char *ext = strrchr(filename, '.');
-	if (ext != nullptr)
-	{
-		if (strcmp(ext, ".png") == 0)
-		{
-			return PNG;
-		}
-		else if (strcmp(ext, ".jpg") == 0)
-		{
-			return JPG;
-		}
-	}
-	return PNG;
 }
 
 Image &Image::convolve_clamp_to_0(uint8_t channel, uint32_t ker_w, uint32_t ker_h, double ker[], uint32_t cr, uint32_t cc)
@@ -260,7 +226,7 @@ Image &Image::diffmap(Image& img)
 		{
 			for (uint8_t k = 0; k < compare_channels; k++)
 			{
-				data[(i*w+j) * channels + k] = BYTE_BOUND(abs(img.data[(i*img.w+j) * img.channels + k]));
+				data[(i*w+j) * channels + k] = BYTE_BOUND(img.data[(i*img.w+j) * img.channels + k]);
 			}
 		}
 	}
