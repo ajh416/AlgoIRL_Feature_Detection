@@ -12,11 +12,13 @@
 // Constructor for an Image from a file
 Image::Image(const char *filename)
 {
-	if (read(filename))
-	{
+	if (read(filename)) {
 		printf("Read %s\n", filename);
 		printf("Width: %i; Height: %i; Channels: %i\n", w, h, channels);
 		size = w * h * channels;
+	}
+	else {
+		printf("Failed to read image %s!\n", filename);
 	}
 }
 
