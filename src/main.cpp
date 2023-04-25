@@ -5,31 +5,11 @@
 
 #define ASSERT(x, ...) if (!(x)) fprintf(stderr, __VA_ARGS__);
 
-// used for calculating the sobel operator for convenience
-template<typename T>
-struct Vec3 {
-	Vec3(T x, T y, T z) { this->x = x; this->y = y; this->z = z; }
-
-	T x, y, z;
-
-	Vec3 Pow(int p) { return Vec3(pow(x, p), pow(y, p), pow(z, p)); }
-
-	Vec3 Sqrt() { return Vec3(sqrt(x), sqrt(y), sqrt(z)); }
-
-	Vec3 operator+(Vec3 other) { return Vec3(x + other.x, y + other.y, z + other.z); }
-};
-
-// converts uint8_t to float bounded between 0 and 1
-Vec3<float> vec3_uint8_to_float(const Vec3<uint8_t> conv) { return Vec3<float>(conv.x / 255.0f, conv.y / 255.0f, conv.z / 255.0f); }
-
-// converts floats (bounded 0 to 1) to uint8_ts
-Vec3<uint8_t> vec3_float_to_uint8(const Vec3<float> conv) { return Vec3<uint8_t>(conv.x * 255, conv.y * 255, conv.z * 255); }
-
 // perform the sobel operator on the image
 Image SobelOperator(const Image* img) {
 	// make copies of the image for the calculation
-	Image img_x = *img;
-	Image img_y = *img;
+	Image img_x = Image(*img);
+	Image img_y = Image(*img);
 
 	// create a placeholder image for the final result
 	Image result = Image(img->w, img->h, img->channels);
@@ -51,21 +31,36 @@ Image SobelOperator(const Image* img) {
 	}
 
 	// loop through the pixels in the image
-	// the pixels are stored in a 1d array, with each element being
+	// the pixels are stored in an array, with each element being
 	// a singular value of a pixel
 	// e.g., one pixel of RGBA format takes FOUR elements to represent it
 	for (int i = 0; i < img->size; i += img->channels) {
-		// get floats (0 --> 1) rather than uint8_ts to perform the calculation
-		Vec3<float> x = vec3_uint8_to_float(Vec3<uint8_t>(img_x.data[i], img_x.data[i + 1], img_x.data[i + 2]));
-		Vec3<float> y = vec3_uint8_to_float(Vec3<uint8_t>(img_y.data[i], img_y.data[i + 1], img_y.data[i + 2]));
+		float Xr, Xg, Xb;
+		Xr = img_x.data[i] / 255.0f;
+		Xg = img_x.data[i + 1] / 255.0f;
+		Xb = img_x.data[i + 2] / 255.0f;
 
-		// calculate the gradient magnitude
-		Vec3<float> Gf = (x.Pow(2) + y.Pow(2)).Sqrt();
+		float Yr, Yg, Yb;
+		Yr = img_y.data[i] / 255.0f;
+		Yg = img_y.data[i + 1] / 255.0f;
+		Yb = img_y.data[i + 2] / 255.0f;
 
-		// convert back to a uint8_t for writing
-		Vec3<uint8_t> G = vec3_float_to_uint8(Gf);
+		Xr *= Xr;
+		Xg *= Xg;
+		Xb *= Xb;
 
-		result.data[i] = G.x; result.data[i + 1] = G.y; result.data[i + 2] = G.z;
+		Yr *= Yr;
+		Yg *= Yg;
+		Yb *= Yb;
+
+		uint8_t Gr, Gg, Gb;
+		Gr = std::sqrt(Xr + Yr) * 255;
+		Gg = std::sqrt(Xg + Yg) * 255;
+		Gb = std::sqrt(Xb + Yb) * 255;
+
+		result.data[i] = Gr; result.data[i + 1] = Gg; result.data[i + 2] = Gb;
+		if (img->channels == 4)
+			result.data[i + 3] = 255;
 	}
 
 	// write the images for debugging
@@ -77,7 +72,17 @@ Image SobelOperator(const Image* img) {
 
 int main()
 {
-	Image raft("images/sobel_op.png");
+	std::cout << "Input an image filename > ";
+	std::string input_image;
+	std::getline(std::cin, input_image);
+	std::cout << '\n';
+
+	std::cout << "Input the output filename > ";
+	std::string output_image;
+	std::getline(std::cin, output_image);
+	std::cout << '\n';
+
+	Image raft(input_image.c_str());
 
 	double ker[] = {1 / 16.0, 2 / 16.0, 1 / 16.0,
 					2 / 16.0, 4 / 16.0, 2 / 16.0,
@@ -95,7 +100,8 @@ int main()
 	Image sobel = SobelOperator(&raft);
 
 	// Write the image
-	ASSERT(sobel.write("modified_images/sobel_op.png"), "Image write failed!");
+	ASSERT(sobel.write(output_image.c_str()), "Image write failed!");
+	printf("Wrote image %s to %s!\n", input_image.c_str(), output_image.c_str());
 
 	return 0;
 }
