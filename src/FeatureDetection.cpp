@@ -3,6 +3,11 @@
 #include <cmath>
 
 namespace FeatureDetection {
+
+	Image Convolve(const Image* img) {
+		return *img;
+	}
+
 	// perform the sobel operator on the image
 	Image SobelOperator(const Image* img) {
 		// make copies of the image for the calculation

@@ -3,15 +3,16 @@
 
 #define BYTE_BOUND(x) (uint8_t)(x < 0 ? 0 : (x > 255 ? 255 : x))
 
-#include <iostream>
-#include <string>
 #include "Image.hpp"
+
 #include "stb_image/stb_image.h"
 #include "stb_image/stb_image_write.h"
 
+#include <iostream>
+#include <string>
+
 // Constructor for an Image from a file
-Image::Image(const char *filename)
-{
+Image::Image(const char *filename) {
 	if (read(filename)) {
 		printf("Read %s\n", filename);
 		printf("Width: %i; Height: %i; Channels: %i\n", w, h, channels);
@@ -23,48 +24,42 @@ Image::Image(const char *filename)
 }
 
 // Constructor for a blank Image based on inputted width, height, and channels
-Image::Image(int w, int h, int channels) : w(w), h(h), channels(channels)
-{
+Image::Image(int w, int h, int channels) : w(w), h(h), channels(channels) {
 	size = w * h * channels;
 	data = new uint8_t[size];
 }
 
 // Constructor to copy over data from an already created Image
-Image::Image(const Image &img) : Image(img.w, img.h, img.channels)
-{
+Image::Image(const Image &img) : Image(img.w, img.h, img.channels) {
 	memcpy(data, img.data, size);
 }
 
 // Deconstructor to free data from an image
-Image::~Image()
-{
+Image::~Image() {
 	stbi_image_free(data);
 }
 
 // Calls the stbi_load function with references to w, h, and channels as defined in the "Image.h" file
-bool Image::read(const char *filename)
-{
+bool Image::read(const char *filename) {
 	data = stbi_load(filename, &w, &h, &channels, 0);
 	return data != NULL;
 }
 
 // Calls the stbi_write function using the filename param based on what type of image the file is
-bool Image::write(const char *filename)
-{
-	//const char* ext = strrchr(filename, '.');
+bool Image::write(const char *filename) {
+	const char* ext = strrchr(filename, '.');
 	int success = 0;
-	/*
+	
 	if (strcmp(ext, ".png") == 0)
 		success = stbi_write_png(filename, w, h, channels, data, w * channels);
 	else
 		success = stbi_write_jpg(filename, w, h, channels, data, 100);
-	*/
-	success = stbi_write_png(filename, w, h, channels, data, w * channels);
+	
+	//success = stbi_write_png(filename, w, h, channels, data, w * channels);
 	return success != 0;
 }
 
-Image &Image::convolve_clamp_to_0(uint8_t channel, uint32_t ker_w, uint32_t ker_h, double ker[], uint32_t cr, uint32_t cc)
-{
+Image &Image::convolve_clamp_to_0(uint8_t channel, uint32_t ker_w, uint32_t ker_h, double ker[], uint32_t cr, uint32_t cc) {
 	uint8_t *new_data = new uint8_t[w * h];
 	uint64_t center = cr * ker_w + cc;
 	for (uint64_t k = channel; k < size; k += channels)
