@@ -9,7 +9,7 @@ namespace FeatureDetection {
 	}
 
 	// perform the sobel operator on the image
-	Image SobelOperator(const Image* img) {
+	Image SobelOperator(const Image* img, const bool direction) {
 		// make copies of the image for the calculation
 		Image img_x = Image(*img);
 		Image img_y = Image(*img);
@@ -39,8 +39,9 @@ namespace FeatureDetection {
 		// e.g., one pixel of RGBA format takes FOUR elements to represent it
 		for (int i = 0; i < img->size; i += img->channels) {
 
-			// convert to floats bounded between 0 -> 1
-			// pretty much required for calculations
+			uint8_t Gr, Gg, Gb;		
+
+			// convert uint8_ts to floats bounded between 0 -> 1
 			float Xr, Xg, Xb;
 			Xr = img_x.data[i] / 255.0f;
 			Xg = img_x.data[i + 1] / 255.0f;
@@ -51,25 +52,31 @@ namespace FeatureDetection {
 			Yg = img_y.data[i + 1] / 255.0f;
 			Yb = img_y.data[i + 2] / 255.0f;
 
-			// obtain the gradient magnitude
-			// gradient magnitude = sqrt(Gx^2 + Gy^2)
+			if (!direction) {
+				// obtain the gradient magnitude
+				// gradient magnitude = sqrt(Gx^2 + Gy^2)
 
-			// Gx^2
-			Xr *= Xr;
-			Xg *= Xg;
-			Xb *= Xb;
+				// Gx^2
+				Xr *= Xr;
+				Xg *= Xg;
+				Xb *= Xb;
 
-			// Gy^2
-			Yr *= Yr;
-			Yg *= Yg;
-			Yb *= Yb;
+				// Gy^2
+				Yr *= Yr;
+				Yg *= Yg;
+				Yb *= Yb;
 
-			// sqrt(Gx + Gy)
-			uint8_t Gr, Gg, Gb;
-			Gr = std::sqrt(Xr + Yr) * 255;
-			Gg = std::sqrt(Xg + Yg) * 255;
-			Gb = std::sqrt(Xb + Yb) * 255;
+				// sqrt(Gx + Gy)
+				Gr = std::sqrt(Xr + Yr) * 255;
+				Gg = std::sqrt(Xg + Yg) * 255;
+				Gb = std::sqrt(Xb + Yb) * 255;
 
+			} else {
+				// gradient direction = atan2(Gy, Gx);
+				Gr = std::atan2(Yr, Xr) * 255;
+				Gg = std::atan2(Yg, Xg) * 255;
+				Gb = std::atan2(Yb, Xb) * 255;
+			}
 			// set our result image to the gradient magnitude
 			// the for loop iterates at the number of channels
 			// which means that i is the red pixel, i + 1 is green

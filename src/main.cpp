@@ -20,12 +20,16 @@ std::filesystem::path OpenFileDialog(const std::filesystem::path open_path = std
 int main() {
 	// open a dialog window
 	std::filesystem::path input_image = OpenFileDialog();
+	if (input_image == std::filesystem::path()) {
+		printf("No file selected!\n");
+		return 1;
+	}
 
 	// load the image into memory
 	Image image(input_image.c_str());
 
 	// Perform the operator on an image
-	Image sobel = FeatureDetection::SobelOperator(&image);
+	Image sobel = FeatureDetection::SobelOperator(&image, true);
 
 	// this is unique to how we store and read our images, without finding a slash
 	// in the input this would probably cause our output to be quite wonky
