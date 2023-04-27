@@ -38,6 +38,9 @@ namespace FeatureDetection {
 		// a singular value of a pixel
 		// e.g., one pixel of RGBA format takes FOUR elements to represent it
 		for (int i = 0; i < img->size; i += img->channels) {
+
+			// convert to floats bounded between 0 -> 1
+			// pretty much required for calculations
 			float Xr, Xg, Xb;
 			Xr = img_x.data[i] / 255.0f;
 			Xg = img_x.data[i + 1] / 255.0f;
@@ -48,25 +51,35 @@ namespace FeatureDetection {
 			Yg = img_y.data[i + 1] / 255.0f;
 			Yb = img_y.data[i + 2] / 255.0f;
 
+			// obtain the gradient magnitude
+			// gradient magnitude = sqrt(Gx^2 + Gy^2)
+
+			// Gx^2
 			Xr *= Xr;
 			Xg *= Xg;
 			Xb *= Xb;
 
+			// Gy^2
 			Yr *= Yr;
 			Yg *= Yg;
 			Yb *= Yb;
 
+			// sqrt(Gx + Gy)
 			uint8_t Gr, Gg, Gb;
 			Gr = std::sqrt(Xr + Yr) * 255;
 			Gg = std::sqrt(Xg + Yg) * 255;
 			Gb = std::sqrt(Xb + Yb) * 255;
 
+			// set our result image to the gradient magnitude
+			// the for loop iterates at the number of channels
+			// which means that i is the red pixel, i + 1 is green
+			// and i + 3 is blue (i + 3 is alpha if applicable)
 			result.data[i] = Gr; result.data[i + 1] = Gg; result.data[i + 2] = Gb;
 			if (img->channels == 4)
 				result.data[i + 3] = 255;
 		}
 
-#ifdef DEBUG
+#ifdef DEBUG_SOBEL
 		// write the images for debugging
 		img_x.write("modified_images/sobel_x.png");
 		img_y.write("modified_images/sobel_y.png");
