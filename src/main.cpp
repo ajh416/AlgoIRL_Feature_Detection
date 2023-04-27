@@ -1,3 +1,11 @@
+/*
+ * How to compile with gcc: g++ src/main.cpp src/Image.cpp src/FeatureDetection.cpp -std=c++20 -O -o main
+ * If using Windows (mingw, clang), this command should still work. MSVC should also compile this,
+ * but we do not provide .sln or .vsxproj files
+ *
+ * Authors: Adam Henry, Shane Ludwig
+ */
+
 #include "Image.hpp"
 #include "FeatureDetection.hpp"
 
