@@ -3,7 +3,7 @@
  * If using Windows (mingw, clang), this command should still work. MSVC should also compile this,
  * but we do not provide .sln or .vsxproj files
  *
- * Authors: Adam Henry, Shane Ludwig
+3* Authors: Adam Henry, Shane Ludwig
  */
 
 #include "Image.hpp"
@@ -21,14 +21,12 @@
 
 #define ASSERT(x, ...) if (!(x)) fprintf(stderr, __VA_ARGS__); // allows for printf formatting into this assert
 
-#ifndef _WIN32
-
 std::filesystem::path OpenFileDialog(const std::filesystem::path open_path = std::filesystem::current_path(), const char* filter = "All\0*.*\0");
 
 int main() {
 	// open a dialog window
-	std::filesystem::path input_image = OpenFileDialog();
-	if (input_image == std::filesystem::path()) {
+	std::string input_image = OpenFileDialog().string();
+	if (input_image == std::string()) {
 		printf("No file selected!\n");
 		return 1;
 	}
@@ -51,15 +49,6 @@ int main() {
 
 	return 0;
 }
-
-#else // _WIN32
-
-int main() {
-	printf("This program only supports Linux systems for now!\n");
-	return 1;
-}
-
-#endif // !_WIN32
 
 // Opens a file dialog on either Windows or Linux
 std::filesystem::path OpenFileDialog(const std::filesystem::path open_path, const char* filter)
@@ -84,7 +73,9 @@ std::filesystem::path OpenFileDialog(const std::filesystem::path open_path, cons
                 std::replace(fp.begin(), fp.end(), '\\', '/');
                 return std::filesystem::path(fp);
         }
-#endif // _WIN32
+
+	return std::filesystem::path();
+#else
 
 	// Set zenity to open in our current directory
 	char buf[256];
@@ -106,5 +97,5 @@ std::filesystem::path OpenFileDialog(const std::filesystem::path open_path, cons
 
 	// else, return the const char as a path
         return std::filesystem::path(std::string(filename));
-        //return std::filesystem::path();
+#endif
 }

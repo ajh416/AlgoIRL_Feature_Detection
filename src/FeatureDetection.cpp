@@ -29,8 +29,8 @@ namespace FeatureDetection {
 		// convolve to get the partial derivative of the image with respect to x and y
 		// perform on the color channels only, no alpha channels, if they exist
 		for (int i = 0; i < 3; i++) {
-			img_x = img_x.convolve_clamp_to_0(i, 3, 3, Gx, 1, 1);
-			img_y = img_y.convolve_clamp_to_0(i, 3, 3, Gy, 1, 1);
+			img_x = img_x.convolve_clamp_to_border(i, 3, 3, Gx, 1, 1);
+			img_y = img_y.convolve_clamp_to_border(i, 3, 3, Gy, 1, 1);
 		}
 
 		// loop through the pixels in the image
