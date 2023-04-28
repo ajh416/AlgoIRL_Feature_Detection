@@ -1,9 +1,9 @@
 /*
  * How to compile with gcc: g++ src/main.cpp src/Image.cpp src/FeatureDetection.cpp -std=c++20 -O -o main
- * If using Windows (mingw, clang), this command should still work. MSVC should also compile this,
- * but we do not provide .sln or .vsxproj files
+ * When using Windows, you must also link against comdlg32.lib for some reason
+ * MSVC links against it automagically, but clang/gcc must be manually specified with "-l comdlg32.lib"
  *
-3* Authors: Adam Henry, Shane Ludwig
+ * Authors: Adam Henry, Shane Ludwig
  */
 
 #include "Image.hpp"
