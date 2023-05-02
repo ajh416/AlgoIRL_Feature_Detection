@@ -1,5 +1,5 @@
 /*
- * How to compile with gcc: g++ src/main.cpp src/Image.cpp src/FeatureDetection.cpp -std=c++20 -O -o main
+ * How to compile with gcc: g++ src/main.cpp src/Image.cpp src/FeatureDetection.cpp -std=c++20 -O2 -o main
  * When using Windows, you must also link against comdlg32.lib for some reason
  * MSVC links against it automagically, but clang/gcc must be manually specified with "-l comdlg32.lib"
  *
@@ -14,8 +14,10 @@
 #include <filesystem>
 
 #ifdef _WIN32
+// Needed for file dialog
 #include <Windows.h>
 #else
+// Needed for popen
 #include <unistd.h>
 #endif
 
@@ -31,11 +33,19 @@ int main() {
 		return 1;
 	}
 
+	printf("Direction of gradient? (y/n): ");
+	char direction[10];
+	scanf("%s", direction);
+
+	int dir = 0;
+	if (strcmp(direction, "y") == 0)
+		dir = 1;
+
 	// load the image into memory
 	Image image(input_image.c_str());
 
 	// Perform the operator on an image
-	Image sobel = FeatureDetection::SobelOperator(&image, true);
+	Image sobel = FeatureDetection::SobelOperator(&image, dir);
 
 	// this is unique to how we store and read our images, without finding a slash
 	// in the input this would probably cause our output to be quite wonky
