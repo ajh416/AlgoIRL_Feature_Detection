@@ -131,7 +131,7 @@ Image &Image::grayscale()
 {
 	if (channels < 3)
 	{
-		printf("Image %p has less than 3 channels, it is assumed to already be greyscale.", this);
+		printf("Image %p has less than 3 channels, it is assumed to already be greyscale.", (void*)this);
 	}
 	else
 	{
