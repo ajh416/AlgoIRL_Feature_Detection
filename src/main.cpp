@@ -11,7 +11,6 @@
 
 #include <cmath>
 #include <cstring>
-#include <filesystem>
 
 #ifdef _WIN32
 // Needed for file dialog
@@ -23,11 +22,11 @@
 
 #define ASSERT(x, ...) if (!(x)) fprintf(stderr, __VA_ARGS__); // allows for printf formatting into this assert
 
-std::filesystem::path OpenFileDialog(const std::filesystem::path open_path = std::filesystem::current_path(), const char* filter = "All\0*.*\0");
+std::string OpenFileDialog(const std::string& open_path = std::string(), const char* filter = "All\0*.*\0");
 
 int main() {
 	// open a dialog window
-	std::string input_image = OpenFileDialog().string();
+	std::string input_image = OpenFileDialog();
 	if (input_image == std::string()) {
 		printf("No file selected!\n");
 		return 1;
@@ -61,7 +60,7 @@ int main() {
 }
 
 // Opens a file dialog on either Windows or Linux
-std::filesystem::path OpenFileDialog(const std::filesystem::path open_path, const char* filter)
+std::string OpenFileDialog(const std::string& open_path, const char* filter)
 {
 #ifdef _WIN32
         OPENFILENAMEA ofn;       // common dialog box structure
@@ -81,10 +80,10 @@ std::filesystem::path OpenFileDialog(const std::filesystem::path open_path, cons
         {
                 std::string fp = ofn.lpstrFile;
                 std::replace(fp.begin(), fp.end(), '\\', '/');
-                return std::filesystem::path(fp);
+                return fp;
         }
 
-	return std::filesystem::path();
+	return std::string();
 #else
 
 	// Set zenity to open in our current directory
@@ -103,9 +102,9 @@ std::filesystem::path OpenFileDialog(const std::filesystem::path open_path, cons
 
 	// if no file selected, return blank path
         if (strcmp(filename, "") == 0)
-                return std::filesystem::path();
+                return std::string();
 
-	// else, return the const char as a path
-        return std::filesystem::path(std::string(filename));
+	// else, return the string
+        return std::string(filename);
 #endif
 }
