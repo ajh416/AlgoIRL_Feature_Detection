@@ -79,7 +79,11 @@ std::string OpenFileDialog(const std::string& open_path, const char* filter)
         if (GetOpenFileNameA(&ofn) == TRUE)
         {
                 std::string fp = ofn.lpstrFile;
-                std::replace(fp.begin(), fp.end(), '\\', '/');
+		for (size_t i = 0; i < fp.size(); i++) {
+			if (fp[i] == '\\')
+				fp[i] = '/';
+		}
+                //std::replace(fp.begin(), fp.end(), '\\', '/');
                 return fp;
         }
 
