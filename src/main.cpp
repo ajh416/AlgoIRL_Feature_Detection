@@ -1,7 +1,7 @@
 /*
  * How to compile with gcc: g++ src/main.cpp src/Image.cpp src/FeatureDetection.cpp -std=c++20 -O2 -o main
  * When using Windows, you must also link against comdlg32.lib for some reason
- * MSVC links against it automagically, but clang/gcc must be manually specified with "-l comdlg32.lib"
+ * MSVC links against it automagically, but clang/mingw must be manually specified with "-l comdlg32.lib"
  *
  * Authors: Adam Henry, Shane Ludwig
  */
@@ -15,18 +15,18 @@
 #ifdef _WIN32
 // Needed for file dialog
 #include <Windows.h>
-#else
-// Needed for popen
-#include <unistd.h>
 #endif
 
 #define ASSERT(x, ...) if (!(x)) fprintf(stderr, __VA_ARGS__); // allows for printf formatting into this assert
 
+// open_path is only used on linux, filter is only used on windows
 std::string OpenFileDialog(const std::string& open_path = std::string(), const char* filter = "All\0*.*\0");
 
 int main() {
+	const std::string current_path = "~/";
+
 	// open a dialog window
-	std::string input_image = OpenFileDialog();
+	std::string input_image = OpenFileDialog(current_path);
 	if (input_image == std::string()) {
 		printf("No file selected!\n");
 		return 1;
