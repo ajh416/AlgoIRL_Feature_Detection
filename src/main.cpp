@@ -1,7 +1,9 @@
 /*
  * How to compile with gcc: g++ src/main.cpp src/Image.cpp src/FeatureDetection.cpp -std=c++20 -O2 -o main
  * When using Windows, you must also link against comdlg32.lib for some reason
- * MSVC links against it automagically, but clang/mingw must be manually specified with "-l comdlg32.lib"
+ * MSVC links against it automagically, but clang must be manually specified with "-l comdlg32.lib"
+ * mingw does not seem to work!
+ * command for windows: clang++ src/main.cpp src/Image.cpp src/FeatureDetection.cpp -l comdlg32.lib -O2 -o sobel.exe
  *
  * Authors: Adam Henry, Shane Ludwig
  */
