@@ -4,6 +4,7 @@
 
 namespace FeatureDetection {
 
+	// not currently implemented
 	Image Convolve(const Image* img) {
 		return *img;
 	}
@@ -66,7 +67,7 @@ namespace FeatureDetection {
 				Yg *= Yg;
 				Yb *= Yb;
 
-				// sqrt(Gx + Gy)
+				// sqrt(Gx + Gy) and convert to uint8
 				Gr = std::sqrt(Xr + Yr) * 255;
 				Gg = std::sqrt(Xg + Yg) * 255;
 				Gb = std::sqrt(Xb + Yb) * 255;
@@ -83,11 +84,11 @@ namespace FeatureDetection {
 			// and i + 3 is blue (i + 3 is alpha if applicable)
 			result.data[i] = Gr; result.data[i + 1] = Gg; result.data[i + 2] = Gb;
 			if (img->channels == 4)
-				result.data[i + 3] = 255;
+				result.data[i + 3] = img->data[i + 3];
 		}
 
 #ifdef DEBUG_SOBEL
-		// write the images for debugging
+		// write the x and y derivatives for debugging
 		img_x.write("modified_images/sobel_x.png");
 		img_y.write("modified_images/sobel_y.png");
 #endif

@@ -1,15 +1,16 @@
 /*
- * How to compile with gcc: g++ src/main.cpp src/Image.cpp src/FeatureDetection.cpp -std=c++20 -O2 -o main
+ * How to compile with gcc: g++ src/main.cpp src/Image.cpp src/FeatureDetection.cpp -O2 -o sobel
  * When using Windows, you must also link against comdlg32.lib for some reason
  * MSVC links against it automagically, but clang must be manually specified with "-l comdlg32.lib"
- * mingw does not seem to work!
- * command for windows: clang++ src/main.cpp src/Image.cpp src/FeatureDetection.cpp -l comdlg32.lib -O2 -o sobel.exe
+ * Mingw does not seem to work!
+ * Command for Windows: clang++ src/main.cpp src/Image.cpp src/FeatureDetection.cpp -l comdlg32.lib -O2 -o sobel.exe
  *
  * Authors: Adam Henry, Shane Ludwig
  */
 
 #include "Image.hpp"
 #include "FeatureDetection.hpp"
+#include "Timer.hpp"
 
 #include <cmath>
 #include <cstring>
@@ -25,7 +26,11 @@
 std::string OpenFileDialog(const std::string& open_path = std::string(), const char* filter = "All\0*.*\0");
 
 int main() {
+#ifdef USE_ADAMH_PATH
+	const std::string current_path = "/home/adamh/Dev/Image_Manipulation/images";
+#else
 	const std::string current_path = "~/";
+#endif
 
 	// open a dialog window
 	std::string input_image = OpenFileDialog(current_path);
@@ -33,6 +38,14 @@ int main() {
 		printf("No file selected!\n");
 		return 1;
 	}
+
+	printf("Apply gaussian blur first? (y/n): ");
+	char gaussian[10];
+	scanf("%s", gaussian);
+
+	int gaus = 0;
+	if (strcmp(gaussian, "y") == 0)
+		gaus = 1;
 
 	printf("Direction of gradient? (y/n): ");
 	char direction[10];
@@ -45,9 +58,16 @@ int main() {
 	// load the image into memory
 	Image image(input_image.c_str());
 
-	// Perform the operator on an image
-	Image sobel = FeatureDetection::SobelOperator(&image, dir);
+	if (gaus)
+		image.gaussian_blur();
 
+
+	// Perform the operator on an image
+	Image sobel = Image(0, 0, 0);
+	{
+		Timer t = Timer("SobelOperator");
+		sobel = FeatureDetection::SobelOperator(&image, dir);
+	}
 	// this is unique to how we store and read our images, without finding a slash
 	// in the input this would probably cause our output to be quite wonky
 	// e.g. "modified_imagessobel_op.png", or maybe a null char?
