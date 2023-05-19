@@ -61,14 +61,24 @@ int main() {
 	if (gaus)
 		image.gaussian_blur();
 
-
-	// Perform the operator on an image
+	/* DOING THIS CAUSES A SEGFAULT
 	Image sobel = Image(0, 0, 0);
 	{
-		Timer t = Timer("SobelOperator");
-		sobel = FeatureDetection::SobelOperator(&image, dir);
+        	sobel = Image(FeatureDetection::SobelOperator(&image, dir));
 	}
-	// this is unique to how we store and read our images, without finding a slash
+	*/
+
+	// do this to use timer, make image with the same size as the one we are convolving,
+	// and memcpy the data in from the temp variable
+	// probably not the best solution for this silly problem
+	Image sobel = Image(image.w, image.h, image.channels);
+	{
+		Timer t("SobelOperator(+memcpy)");
+		Image temp = FeatureDetection::SobelOperator(&image, dir);
+		memcpy(sobel.data, temp.data, temp.size);
+	}
+
+        // this is unique to how we store and read our images, without finding a slash
 	// in the input this would probably cause our output to be quite wonky
 	// e.g. "modified_imagessobel_op.png", or maybe a null char?
 	char buf[128];
