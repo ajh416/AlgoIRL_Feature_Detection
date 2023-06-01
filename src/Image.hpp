@@ -21,10 +21,11 @@ struct Image
 	bool write(const char *filename);
 
 	// convolves the image and clamps the border to zero
+	// this function from https://github.com/Code-Break0/Image-Processing
 	Image &convolve_clamp_to_0(uint8_t channel, uint32_t ker_w, uint32_t ker_h, double ker[], uint32_t cr, uint32_t cc);
 
-	// TODO: fix this comment
 	// convolves the image and clamps the border to tile the current image
+	// this function from https://github.com/Code-Break0/Image-Processing
 	Image &convolve_clamp_to_border(uint8_t channel, uint32_t ker_w, uint32_t ker_h, double ker[], uint32_t cr, uint32_t cc);
 
 	// grayscale an image

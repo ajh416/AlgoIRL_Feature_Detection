@@ -59,7 +59,6 @@ bool Image::write(const char *filename) {
 	return success != 0;
 }
 
-// this function from https://github.com/Code-Break0/Image-Processing
 Image &Image::convolve_clamp_to_0(uint8_t channel, uint32_t ker_w, uint32_t ker_h, double ker[], uint32_t cr, uint32_t cc) {
 	uint8_t *new_data = new uint8_t[w * h];
 	uint64_t center = cr * ker_w + cc;
@@ -93,7 +92,6 @@ Image &Image::convolve_clamp_to_0(uint8_t channel, uint32_t ker_w, uint32_t ker_
 	return *this;
 }
 
-// this function from https://github.com/Code-Break0/Image-Processing
 Image& Image::convolve_clamp_to_border(uint8_t channel, uint32_t ker_w, uint32_t ker_h, double ker[], uint32_t cr, uint32_t cc) {
 	uint8_t* new_data = new uint8_t[w * h];
 	uint64_t center = (size_t)cr * ker_w + cc;
