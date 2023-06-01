@@ -68,6 +68,7 @@ int main() {
 	}
 	*/
 
+	printf("Beginning convolution!\n");
 	// do this to use timer, make image with the same size as the one we are convolving,
 	// and memcpy the data in from the temp variable
 	// probably not the best solution for this silly problem
