@@ -63,10 +63,12 @@ int main() {
   // load the image into memory
   Image image(input_image.c_str());
 
+  // gaussian blur makes "noise" in the image less visible
+	// 
   if (gaus)
     image.gaussian_blur();
 
-  /* DOING THIS CAUSES A SEGFAULT
+  /* DOING THIS CAUSES A SEGFAULT (temp retval dies after exiting the scope)
   Image sobel = Image(0, 0, 0);
   {
           sobel = Image(FeatureDetection::SobelOperator(&image, dir));
