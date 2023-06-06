@@ -31,7 +31,9 @@ struct Image {
                                   uint32_t cc);
 
   // grayscale an image
-  Image &grayscale();
+  Image &grayscale_avg();
+
+  Image &grayscale_lum();
 
   // apply gaussian blur to an image
   Image &gaussian_blur();

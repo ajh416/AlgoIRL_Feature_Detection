@@ -11,7 +11,6 @@
 #include <iostream>
 #include <string>
 
-// Constructor for an Image from a file
 Image::Image(const char *filename) {
   if (read(filename)) {
     printf("Read %s\n", filename);
@@ -22,29 +21,22 @@ Image::Image(const char *filename) {
   }
 }
 
-// Constructor for a blank Image based on inputted width, height, and channels
 Image::Image(int w, int h, int channels) : w(w), h(h), channels(channels) {
   size = w * h * channels;
   data = new uint8_t[size];
 }
 
-// Constructor to copy over data from an already created Image
 Image::Image(const Image &img) : Image(img.w, img.h, img.channels) {
   memcpy(data, img.data, size);
 }
 
-// Deconstructor to free data from an image
 Image::~Image() { stbi_image_free(data); }
 
-// Calls the stbi_load function with references to w, h, and channels as defined
-// in the "Image.h" file
 bool Image::read(const char *filename) {
   data = stbi_load(filename, &w, &h, &channels, 0);
   return data != NULL;
 }
 
-// Calls the stbi_write function using the filename param based on what type of
-// image the file is
 bool Image::write(const char *filename) {
   const char *ext = strrchr(filename, '.');
   int success = 0;
@@ -54,7 +46,6 @@ bool Image::write(const char *filename) {
   else
     success = stbi_write_jpg(filename, w, h, channels, data, 100);
 
-  // success = stbi_write_png(filename, w, h, channels, data, w * channels);
   return success != 0;
 }
 
@@ -122,22 +113,34 @@ Image &Image::convolve_clamp_to_border(uint8_t channel, uint32_t ker_w,
   return *this;
 }
 
-// Turns the image into only black and white
-Image &Image::grayscale() {
-  if (channels < 3) {
-    printf("Image %p has less than 3 channels, it is assumed to already be "
-           "greyscale.",
-           (void *)this);
-  } else {
-    for (int i = 0; i < size; i += channels) {
-      int gray = (data[i] + data[i + 1] + data[i + 2]) / 3;
-      memset(data + i, gray, 3);
-    }
-    channels = 1;
-  }
-  return *this;
+Image& Image::grayscale_avg() {
+	if(channels < 3) {
+		printf("Image %p has less than 3 channels, it is assumed to already be grayscale.", (void*)this);
+	}
+	else {
+		for(int i = 0; i < size; i+=channels) {
+			//(r+g+b)/3
+			int gray = (data[i] + data[i+1] + data[i+2])/3;
+			memset(data+i, gray, 3);
+		}
+	}
+	return *this;
 }
 
+Image& Image::grayscale_lum() {
+	if(channels < 3) {
+		printf("Image %p has less than 3 channels, it is assumed to already be grayscale.", (void*)this);
+	}
+	else {
+		for(int i = 0; i < size; i+=channels) {
+			int gray = 0.2126*data[i] + 0.7152*data[i+1] + 0.0722*data[i+2];
+			memset(data+i, gray, 3);
+		}
+	}
+	return *this;
+}
+
+// this may actually be some modified form of box blur
 Image &Image::gaussian_blur() {
   double ker[] = {1 / 16.0, 2 / 16.0, 1 / 16.0, 2 / 16.0, 4 / 16.0,
                   2 / 16.0, 1 / 16.0, 2 / 16.0, 1 / 16.0}; // gaussian blur
@@ -185,6 +188,7 @@ Image &Image::sharpen() {
   return *this;
 }
 
+// not 100% sure how this works, stolen from github
 Image &Image::diffmap(Image &img) {
   int compare_width = fmin(w, img.w);
   int compare_height = fmin(h, img.h);

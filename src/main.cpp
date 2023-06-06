@@ -79,10 +79,12 @@ int main() {
   // do this to use timer, make image with the same size as the one we are
   // convolving, and memcpy the data in from the temp variable probably not the
   // best solution for this silly problem
+  image = image.grayscale_avg();
+  image.write("grayscale.png");
   Image sobel = Image(image.w, image.h, image.channels);
   {
     Timer t("SobelOperator(+memcpy)");
-    Image temp = FeatureDetection::SobelOperator(&image, dir);
+    Image temp = FeatureDetection::SobelOperator(&image);
     memcpy(sobel.data, temp.data, temp.size);
   }
 
