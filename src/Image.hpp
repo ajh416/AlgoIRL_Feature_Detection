@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string>
 
+// much of this base "Image" struct was taken from https://github.com/Code-Break0
 struct Image {
   uint8_t *data = NULL;
   size_t size = 0;
@@ -30,7 +31,6 @@ struct Image {
                                   uint32_t ker_h, double ker[], uint32_t cr,
                                   uint32_t cc);
 
-  // grayscale an image
   Image &grayscale_avg();
 
   Image &grayscale_lum();

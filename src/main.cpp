@@ -5,6 +5,8 @@
  * clang must be manually specified with "-l comdlg32.lib" Mingw does not seem
  * to work! Command for Windows: clang++ src/main.cpp src/Image.cpp
  * src/FeatureDetection.cpp -l comdlg32.lib -O2 -o sobel.exe
+ * For filesystem support, we use the standard filesystem which requires at minimum c++17.
+ * As such, add the flag -std=c++17
  *
  * Authors: Adam Henry, Shane Ludwig
  */
@@ -15,6 +17,7 @@
 
 #include <cmath>
 #include <cstring>
+#include <filesystem>
 
 #ifdef _WIN32
 // Needed for file dialog
@@ -31,11 +34,7 @@ std::string OpenFileDialog(const std::string &open_path = std::string(),
                            const char *filter = "All\0*.*\0");
 
 int main() {
-#ifdef USE_ADAMH_PATH
-  const std::string current_path = "/home/adamh/Dev/Image_Manipulation/images";
-#else
-  const std::string current_path = "~/";
-#endif
+  const std::string current_path = std::filesystem::current_path().string();
 
   // open a dialog window
   std::string input_image = OpenFileDialog(current_path);
@@ -44,6 +43,7 @@ int main() {
     return 1;
   }
 
+  // aims to remove some of the noise, not sure how much it really does
   printf("Apply gaussian blur first? (y/n): ");
   char gaussian[10];
   scanf("%s", gaussian);
@@ -52,6 +52,7 @@ int main() {
   if (strcmp(gaussian, "y") == 0)
     gaus = 1;
 
+  // beware, extremely noisy
   printf("Direction of gradient? (y/n): ");
   char direction[10];
   scanf("%s", direction);
@@ -64,7 +65,6 @@ int main() {
   Image image(input_image.c_str());
 
   // gaussian blur makes "noise" in the image less visible
-	// 
   if (gaus)
     image.gaussian_blur();
 
@@ -75,7 +75,9 @@ int main() {
   }
   */
 
+  // for reference, really
   printf("Beginning convolution!\n");
+
   // do this to use timer, make image with the same size as the one we are
   // convolving, and memcpy the data in from the temp variable probably not the
   // best solution for this silly problem
@@ -83,8 +85,11 @@ int main() {
   image.write("grayscale.png");
   Image sobel = Image(image.w, image.h, image.channels);
   {
+    // Create a timer, stops when it dies (end of scope)
     Timer t("SobelOperator(+memcpy)");
     Image temp = FeatureDetection::SobelOperator(&image);
+
+    // memcpy needed to avoid the temp object dying and causing a segfault
     memcpy(sobel.data, temp.data, temp.size);
   }
 
