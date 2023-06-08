@@ -154,4 +154,15 @@ Image SobelOperator(const Image *img, const bool direction) {
 
   return result;
 }
+
+#ifdef REALTIME_DEMO
+Image SobelOperator(const cv::Mat& matrix) {
+  uint8_t* arr = (uint8_t*)malloc(sizeof(uint8_t) * (matrix.rows * matrix.cols));
+  for (int i = 0; i < matrix.cols; i++) {
+		for (int j = 0; j < matrix.rows; i++) {
+			auto pixel = matrix.ptr<cv::Point3_<uint8_t>>(j + i * matrix.rows, 0);
+		}
+	}
+}
+#endif
 } // namespace FeatureDetection
