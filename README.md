@@ -6,4 +6,4 @@ To Compile on Linux: `clang++ src/main.cpp src/Image.cpp src/FeatureDetection.cp
 
 To Compile on Windows (maybe): `clang++ src/main.cpp src/Image.cpp src/FeatureDetection.cpp -Wpedantic -DDEBUG_SOBEL -lcomdlg32.lib -std=c++17 -O2 -o sobel`
 
-main.cpp contians the driving code behind the program, take a look!
+main.cpp contains the driving code behind the program, take a look!
