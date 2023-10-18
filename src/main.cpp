@@ -1,12 +1,16 @@
 /*
- * How to compile with gcc: g++ src/main.cpp src/Image.cpp
- * src/FeatureDetection.cpp -O2 -o sobel When using Windows, you must also link
- * against comdlg32.lib for some reason MSVC links against it automagically, but
- * clang must be manually specified with "-l comdlg32.lib" Mingw does not seem
- * to work! Command for Windows: clang++ src/main.cpp src/Image.cpp
- * src/FeatureDetection.cpp -l comdlg32.lib -O2 -o sobel.exe
- * For filesystem support, we use the standard filesystem which requires at
- * minimum c++17. As such, add the flag -std=c++17
+ * How to compile with gcc: `g++ src/main.cpp src/Image.cpp
+ * src/FeatureDetection.cpp -O2 -o sobel`. When using Windows, you must also
+ * link against comdlg32.lib for some reason MSVC links against it
+ * automagically, but clang must be manually specified with "-l comdlg32.lib".
+ * Mingw does not seem to work! Command for Windows: clang++ src/main.cpp
+ * src/Image.cpp src/FeatureDetection.cpp -l comdlg32.lib -O2 -o sobel.exe For
+ * filesystem support, we use the standard filesystem which requires at minimum
+ * c++17. As such, add the flag -std=c++17
+ *
+ * Compile command for realtime demo:
+ * clang++ src/main.cpp src/Image.cpp src/FeatureDetection.cpp -o sobel
+ * -I/usr/local/include/opencv4 -lopencv_core -lopencv_videoio -lopencv_highgui
  *
  * Authors: Adam Henry, Shane Ludwig
  */
@@ -31,6 +35,8 @@
 // open_path is only used on linux, filter is only used on windows
 std::string OpenFileDialog(const std::string &open_path = std::string(),
                            const char *filter = "All\0*.*\0");
+
+template <typename A, typename B, typename C> C Clamp(A min, B max, C value);
 
 int main() {
 #ifndef REALTIME_DEMO
@@ -122,7 +128,7 @@ int main() {
   }
   //--- GRAB AND WRITE LOOP
   std::cout << "Start grabbing" << std::endl
-            << "Press any key to terminate" << std::endl;
+            << "Press space key to terminate" << std::endl;
   for (;;) {
     // wait for a new frame from camera and store it into 'frame'
     cap.read(frame);
@@ -131,10 +137,28 @@ int main() {
       std::cerr << "ERROR! blank frame grabbed\n";
       break;
     }
+
+    // typedef cv::Point3_<uint8_t> Pixel;
+    // for (int r = 0; r < frame.rows; ++r) {
+    //   Pixel *ptr = frame.ptr<Pixel>(r, 0);
+    //   const Pixel *ptr_end = ptr + frame.cols;
+    //   for (; ptr != ptr_end; ++ptr) {
+    //     ptr->x = Clamp(0, 255, ptr->x * 1.5); // blue
+    //     ptr->y = Clamp(0, 255, ptr->y * 1.5); // green
+    //     ptr->z = Clamp(0, 255, ptr->z * 1.5); // red
+    //   }
+    // }
+
+    auto result = FeatureDetection::SobelOperator(frame);
+
     // show live and wait for a key with timeout long enough to show images
-    cv::imshow("Live", frame);
-    if (cv::waitKey(5) >= 0)
-      break;
+    cv::imshow("Live", result);
+    int keypress = cv::waitKey(5);
+    if (keypress >= 0) {
+      printf("Key pressed: %i\n", keypress);
+      if (keypress == 32)
+        break;
+    }
   }
 
 #endif
@@ -193,4 +217,12 @@ std::string OpenFileDialog(const std::string &open_path, const char *filter) {
   // else, return the string
   return std::string(filename);
 #endif
+}
+
+template <typename A, typename B, typename C> C Clamp(A min, B max, C value) {
+  if (value < min)
+    return min;
+  if (value > max)
+    return max;
+  return value;
 }

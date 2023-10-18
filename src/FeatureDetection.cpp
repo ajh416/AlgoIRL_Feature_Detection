@@ -5,7 +5,10 @@
 namespace FeatureDetection {
 
 // not currently implemented
-Image Convolve(const Image *img) { return *img; }
+Image Convolve(const Image *img) {
+  fprintf(stderr, "not implemented");
+  return *img;
+}
 
 Image SobelOperatorGrayscale(const Image *img) {
   // make copies of the image for the calculation
@@ -25,15 +28,18 @@ Image SobelOperatorGrayscale(const Image *img) {
   img_x = img_x.convolve_clamp_to_border(0, 3, 3, Gx, 1, 1);
   img_y = img_y.convolve_clamp_to_border(0, 3, 3, Gy, 1, 1);
 
-  printf("input width, height, size: %i, %i, %i, %lu\n", img->w, img->h, img->channels, img->size);
-  printf("img_x width, height, size: %i, %i, %i, %lu\n", img_x.w, img_x.h, img_x.channels, img_x.size);
-  printf("result width, height, size: %i, %i, %i, %lu\n", result.w, result.h, result.channels, result.size);
+  printf("input width, height, size: %i, %i, %i, %lu\n", img->w, img->h,
+         img->channels, img->size);
+  printf("img_x width, height, size: %i, %i, %i, %lu\n", img_x.w, img_x.h,
+         img_x.channels, img_x.size);
+  printf("result width, height, size: %i, %i, %i, %lu\n", result.w, result.h,
+         result.channels, result.size);
 
   // loop through the pixels in the image
   // the pixels are stored in an array, with each element being
   // a singular value of a pixel
   // e.g., one pixel of RGBA format takes FOUR elements to represent it
-  for (int i = 0; i < img_x.size; i+=img_x.channels) {
+  for (int i = 0; i < img_x.size; i += img_x.channels) {
 
     uint8_t G;
 
@@ -156,13 +162,60 @@ Image SobelOperator(const Image *img, const bool direction) {
 }
 
 #ifdef REALTIME_DEMO
-Image SobelOperator(const cv::Mat& matrix) {
-  uint8_t* arr = (uint8_t*)malloc(sizeof(uint8_t) * (matrix.rows * matrix.cols));
-  for (int i = 0; i < matrix.cols; i++) {
-		for (int j = 0; j < matrix.rows; i++) {
-			auto pixel = matrix.ptr<cv::Point3_<uint8_t>>(j + i * matrix.rows, 0);
-		}
-	}
+cv::Mat SobelOperator(cv::Mat input, bool direction) {
+  cv::Mat output = cv::Mat(input.rows, input.cols, input.type());
+
+  cv::Mat x_copy(input.rows, input.cols, input.type());
+  cv::Mat y_copy(input.rows, input.cols, input.type());
+
+  float GxArray[9] = {1, 0, -1, 2, 0, -2, 1, 0, -1};
+  float GyArray[9] = {1, 2, 1, 0, 0, 0, -1, -2, -1};
+
+  cv::Mat Gx = cv::Mat(3, 3, CV_32F, (void*)&GxArray);
+  cv::Mat Gy = cv::Mat(3, 3, CV_32F, (void*)&GyArray);
+
+  cv::filter2D(input, x_copy, 0, Gx);
+  cv::filter2D(input, y_copy, 0, Gy);
+
+  const auto channels = input.channels();
+  for (uint64_t i = 0; i < input.size().area() * 3; i += channels) {
+    float Xr = x_copy.data[i] / 255.0f;
+    float Xg = x_copy.data[i + 1] / 255.0f;
+    float Xb = x_copy.data[i + 2] / 255.0f;
+
+    float Yr = y_copy.data[i] / 255.0f;
+    float Yg = y_copy.data[i + 1] / 255.0f;
+    float Yb = y_copy.data[i + 2] / 255.0f;
+
+    uchar Gr;
+    uchar Gg;
+    uchar Gb;
+
+    if (!direction) {
+    Xr *= Xr;
+    Xg *= Xg;
+    Xb *= Xb;
+
+    Yr *= Yr;
+    Yg *= Yg;
+    Yb *= Yb;
+
+    // sqrt(Gx + Gy) and convert to uint8
+    Gr = std::sqrt(Xr + Yr) * 255;
+    Gg = std::sqrt(Xg + Yg) * 255;
+    Gb = std::sqrt(Xb + Yb) * 255;
+    
+    } else {
+      // gradient direction = atan2(Gy, Gx);
+      Gr = std::atan2(Yr, Xr) * 255;
+      Gg = std::atan2(Yg, Xg) * 255;
+      Gb = std::atan2(Yb, Xb) * 255;
+    }
+    output.data[i] = Gr;
+    output.data[i + 1] = Gg;
+    output.data[i + 2] = Gb;
+  }
+  return output;
 }
 #endif
 } // namespace FeatureDetection

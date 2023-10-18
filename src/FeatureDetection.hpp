@@ -2,10 +2,13 @@
 
 #include "Image.hpp"
 
+#define REALTIME_DEMO
 #ifdef REALTIME_DEMO
-#include "opencv2/core.hpp"
-#include "opencv2/highgui.hpp"
-#include "opencv2/videoio.hpp"
+#include "opencv4/opencv2/core.hpp"
+#include "opencv4/opencv2/highgui.hpp"
+#include "opencv4/opencv2/videoio.hpp"
+#include "opencv4/opencv2/imgproc.hpp"
+#include "opencv4/opencv2/imgcodecs.hpp"
 #endif
 
 namespace FeatureDetection {
@@ -20,6 +23,6 @@ namespace FeatureDetection {
 	Image SobelOperator(const Image* img, const bool direction = false);
 
 #ifdef REALTIME_DEMO
-	Image SobelOperator(const cv::Mat& matrix);
+	cv::Mat SobelOperator(cv::Mat input, bool direction = false);
 #endif
 }
