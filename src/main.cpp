@@ -20,7 +20,6 @@
 
 #include <cmath>
 #include <cstring>
-#include <filesystem>
 
 #ifdef _WIN32
 // Needed for file dialog
@@ -40,10 +39,12 @@ template <typename A, typename B, typename C> C Clamp(A min, B max, C value);
 
 int main() {
 #ifndef REALTIME_DEMO
-  const std::string current_path = std::filesystem::current_path().string();
+  //const std::string current_path = std::filesystem::current_path().string();
+
+  const std::string current_path = "./";
 
   // open a dialog window
-  std::string input_image = OpenFileDialog(current_path);
+  const std::string input_image = OpenFileDialog(current_path);
   if (input_image == std::string()) {
     printf("No file selected!\n");
     return 1;
@@ -52,7 +53,11 @@ int main() {
   // aims to remove some of the noise, not sure how much it really does
   printf("Apply gaussian blur first? (y/n): ");
   char gaussian[10];
-  scanf("%s", gaussian);
+  fgets(gaussian, 9, stdin);
+  gaussian[strcspn(gaussian, "\n")] = 0;
+  //scanf_s("%c", gaussian, 1);
+
+  printf("gaussian: |%s|\n", gaussian);
 
   int gaus = 0;
   if (strcmp(gaussian, "y") == 0)
@@ -61,7 +66,9 @@ int main() {
   // beware, extremely noisy
   printf("Direction of gradient? (y/n): ");
   char direction[10];
-  scanf("%s", direction);
+  fgets(direction, 9, stdin);
+  direction[strcspn(direction, "\n")] = 0;
+  //scanf_s("%c", direction, 1);
 
   int dir = 0;
   if (strcmp(direction, "y") == 0)
@@ -73,13 +80,6 @@ int main() {
   // gaussian blur makes "noise" in the image less visible
   if (gaus)
     image.gaussian_blur();
-
-  /* DOING THIS CAUSES A SEGFAULT (temp retval dies after exiting the scope)
-  Image sobel = Image(0, 0, 0);
-  {
-          sobel = Image(FeatureDetection::SobelOperator(&image, dir));
-  }
-  */
 
   // for reference, really
   printf("Beginning convolution!\n");
@@ -93,7 +93,7 @@ int main() {
   {
     // Create a timer, stops when it dies (end of scope)
     Timer t("SobelOperator(+memcpy)");
-    Image temp = FeatureDetection::SobelOperator(&image);
+    Image temp = FeatureDetection::SobelOperator(&image, dir);
 
     // memcpy needed to avoid the temp object dying and causing a segfault
     memcpy(sobel.data, temp.data, temp.size);

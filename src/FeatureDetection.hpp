@@ -2,7 +2,6 @@
 
 #include "Image.hpp"
 
-#define REALTIME_DEMO
 #ifdef REALTIME_DEMO
 #include "opencv4/opencv2/core.hpp"
 #include "opencv4/opencv2/highgui.hpp"

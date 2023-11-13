@@ -28,11 +28,11 @@ Image SobelOperatorGrayscale(const Image *img) {
   img_x = img_x.convolve_clamp_to_border(0, 3, 3, Gx, 1, 1);
   img_y = img_y.convolve_clamp_to_border(0, 3, 3, Gy, 1, 1);
 
-  printf("input width, height, size: %i, %i, %i, %lu\n", img->w, img->h,
+  printf("input width, height, size: %i, %i, %i, %zu\n", img->w, img->h,
          img->channels, img->size);
-  printf("img_x width, height, size: %i, %i, %i, %lu\n", img_x.w, img_x.h,
+  printf("img_x width, height, size: %i, %i, %i, %zu\n", img_x.w, img_x.h,
          img_x.channels, img_x.size);
-  printf("result width, height, size: %i, %i, %i, %lu\n", result.w, result.h,
+  printf("result width, height, size: %i, %i, %i, %zu\n", result.w, result.h,
          result.channels, result.size);
 
   // loop through the pixels in the image

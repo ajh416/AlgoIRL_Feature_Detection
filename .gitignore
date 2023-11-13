@@ -1,3 +1,8 @@
 .vscode
+.vs
 main
 compiler_flags.txt
+.filters
+.user
+AlgoIRL_Feature_Detection.vcxproj.filters
+AlgoIRL_Feature_Detection.vcxproj.user
