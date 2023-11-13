@@ -57,8 +57,6 @@ int main() {
   gaussian[strcspn(gaussian, "\n")] = 0;
   //scanf_s("%c", gaussian, 1);
 
-  printf("gaussian: |%s|\n", gaussian);
-
   int gaus = 0;
   if (strcmp(gaussian, "y") == 0)
     gaus = 1;
